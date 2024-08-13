@@ -5,8 +5,8 @@ import pathlib
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Sequence
 
-import deepspeed
-deepspeed.ops.op_builder.CPUAdamBuilder().load()
+# import deepspeed
+# deepspeed.ops.op_builder.CPUAdamBuilder().load()
 
 import tokenizers
 import torch

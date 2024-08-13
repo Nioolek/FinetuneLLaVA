@@ -10,23 +10,61 @@ from llava.conversation import conv_templates, SeparatorStyle
 
 
 
-pretrained = "lmms-lab/llama3-llava-next-8b"
-model_name = "llava_llama3"
+# pretrained = "lmms-lab/llama3-llava-next-8b"
+# model_name = "llava_llama3"
+
+# pretrained = 'llava_logo_model1'
+model_path = 'llava_logo_model1/'
+# model_base = 'liuhaotian/llava-v1.5-7b'
+
 device = "cuda"
-device_map = "auto"
-tokenizer, model, image_processor, max_length = load_pretrained_model(pretrained, None, model_name, device_map=device_map) # Add any other thing you want to pass in llava_model_args
+device_map = "cuda"
 
-model.eval()
-model.tie_weights()
+kwargs = {"device_map": device_map,
+          'attn_implementation': 'flash_attention_2',
+          'torch_dtype': torch.float16,}
 
-url = "https://github.com/haotian-liu/LLaVA/blob/1a91fc274d7c35a9b50b3cb29c4247ae5837ce39/images/llava_v1_5_radar.jpg?raw=true"
-image = Image.open(requests.get(url, stream=True).raw)
+from transformers import AutoTokenizer, AutoConfig
+from llava.model.language_model.llava_llama import LlavaLlamaForCausalLM
+tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
+cfg_pretrained = AutoConfig.from_pretrained(model_path, trust_remote_code=True)
+model = LlavaLlamaForCausalLM.from_pretrained(
+    model_path,
+    low_cpu_mem_usage=True,
+    config=cfg_pretrained,
+    # device_map=device_map,
+    **kwargs
+)
+
+vision_tower = model.get_vision_tower()
+print('vision_tower.is_loaded', vision_tower.is_loaded)
+if not vision_tower.is_loaded:
+    vision_tower.load_model(device_map=device_map)
+vision_tower.to(device=device_map, dtype=torch.float16)
+image_processor = vision_tower.image_processor
+
+if hasattr(model.config, "max_sequence_length"):
+    context_len = model.config.max_sequence_length
+else:
+    context_len = 2048
+
+# img_path = '../../logo_v1/ALMAY1/yes/IMG_1224.PNG'
+img_path = '../../logo_v1/none/81DMQ4onQ0L._AC_SL1500_.jpg'
+image = Image.open(img_path)
+
+# tokenizer, model, image_processor, max_length = load_pretrained_model(pretrained, model_base, model_name, device_map=device_map, use_flash_attn=True) # Add any other thing you want to pass in llava_model_args
+#
+# model.eval()
+# model.tie_weights()
+#
+# url = "https://github.com/haotian-liu/LLaVA/blob/1a91fc274d7c35a9b50b3cb29c4247ae5837ce39/images/llava_v1_5_radar.jpg?raw=true"
+# image = Image.open(requests.get(url, stream=True).raw)
 image_tensor = process_images([image], image_processor, model.config)
 image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
 
-conv_template = "llava_llama_3" # Make sure you use correct chat template for different models
+conv_template = "v1" # Make sure you use correct chat template for different models
 question = DEFAULT_IMAGE_TOKEN + "\nWhat is shown in this image?"
-conv = copy.deepcopy(conv_templates[conv_template])
+conv = conv_templates[conv_template].copy()
 conv.append_message(conv.roles[0], question)
 conv.append_message(conv.roles[1], None)
 prompt_question = conv.get_prompt()

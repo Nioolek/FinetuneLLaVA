@@ -2,11 +2,11 @@
 
 deepspeed finetune.py \
     --lora_enable True --lora_r 128 --lora_alpha 256 --mm_projector_lr 2e-5 \
-    --deepspeed zero3_offload.json \
+    --deepspeed zero2.json \
     --model_name_or_path liuhaotian/llava-v1.5-7b \
     --version v1 \
-    --data_path /media/g/logo_data_preproces/logo_v1/train_none_llava.json \
-    --image_folder /media/g/logo_data_preproces \
+    --data_path /root/autodl-tmp/logo_v1/train_none_llava.json \
+    --image_folder /root/autodl-tmp \
     --vision_tower openai/clip-vit-large-patch14-336 \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
@@ -16,14 +16,14 @@ deepspeed finetune.py \
     --group_by_modality_length True \
     --bf16 True \
     --output_dir ./checkpoints/llava-v1.5-7b-task-lora \
-    --num_train_epochs 1 \
-    --per_device_train_batch_size 1 \
+    --num_train_epochs 3 \
+    --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 4 \
-    --gradient_accumulation_steps 16 \
+    --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 50000 \
-    --save_total_limit 1 \
+    --save_steps 100 \
+    --save_total_limit 2 \
     --learning_rate 2e-4 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
