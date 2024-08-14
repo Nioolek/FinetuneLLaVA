@@ -14,7 +14,7 @@ from llava.conversation import conv_templates, SeparatorStyle
 # model_name = "llava_llama3"
 
 # pretrained = 'llava_logo_model1'
-model_path = 'llava_logo_model1/'
+model_path = 'merge/baseline'
 # model_base = 'liuhaotian/llava-v1.5-7b'
 
 device = "cuda"
@@ -49,7 +49,8 @@ else:
     context_len = 2048
 
 # img_path = '../../logo_v1/ALMAY1/yes/IMG_1224.PNG'
-img_path = '../../logo_v1/none/81DMQ4onQ0L._AC_SL1500_.jpg'
+# img_path = '/root/autodl-tmp/data/logo0812/images/Dior/Dior1/yes/IMG_3761.PNG'
+img_path = '/root/autodl-tmp/data/logo0812/images/Mickey_Mouse/Mickey_Mouse1/yes/251.jpg'
 image = Image.open(img_path)
 
 # tokenizer, model, image_processor, max_length = load_pretrained_model(pretrained, model_base, model_name, device_map=device_map, use_flash_attn=True) # Add any other thing you want to pass in llava_model_args
@@ -63,7 +64,7 @@ image_tensor = process_images([image], image_processor, model.config)
 image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
 
 conv_template = "v1" # Make sure you use correct chat template for different models
-question = DEFAULT_IMAGE_TOKEN + "\nWhat is shown in this image?"
+question = DEFAULT_IMAGE_TOKEN + "\nYou are an intellectual property expert. Please check the image for potential copyright infringing elements, such as well-known brand logos or cartoon characters. If any are present, please provide the names of the brands or characters. If not, then reply that there are none."
 conv = conv_templates[conv_template].copy()
 conv.append_message(conv.roles[0], question)
 conv.append_message(conv.roles[1], None)
@@ -72,7 +73,7 @@ prompt_question = conv.get_prompt()
 input_ids = tokenizer_image_token(prompt_question, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).to(device)
 image_sizes = [image.size]
 
-
+print('xxx', input_ids, image_tensor, image_sizes)
 cont = model.generate(
     input_ids,
     images=image_tensor,

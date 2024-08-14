@@ -17,7 +17,7 @@ from llava.conversation import conv_templates, SeparatorStyle
 # model_name = "llava_llama3"
 
 # pretrained = 'llava_logo_model1'
-model_path = 'llava_logo_model1/'
+model_path = 'merge/baseline'
 # model_base = 'liuhaotian/llava-v1.5-7b'
 
 device = "cuda"

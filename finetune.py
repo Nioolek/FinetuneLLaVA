@@ -109,7 +109,7 @@ def find_all_linear_names(model):
         if isinstance(module, cls):
             names = name.split('.')
             lora_module_names.add(names[0] if len(names) == 1 else names[-1])
-    print(lora_module_names)
+    # print(lora_module_names)
     if 'lm_head' in lora_module_names:  # needed for 16-bit
         lora_module_names.remove('lm_head')
     return list(lora_module_names)
@@ -422,6 +422,22 @@ class LazySupervisedDataset(Dataset):
         return data_dict
 
 
+class MergeSupervisedDataset(LazySupervisedDataset):
+    def __init__(self, data_path: str,
+                 tokenizer: transformers.PreTrainedTokenizer,
+                 data_args: DataArguments):
+        super(Dataset).__init__()
+        data_path = data_path.split(',')
+        self.list_data_dict = []
+        for i in data_path:
+            self.list_data_dict += json.load(open(i, "r"))
+
+        rank0_print("Formatting inputs...Skip in lazy mode")
+        self.tokenizer = tokenizer
+        # self.list_data_dict = list_data_dict
+        self.data_args = data_args
+
+
 @dataclass
 class DataCollatorForSupervisedDataset(object):
     """Collate examples for supervised fine-tuning."""
@@ -460,9 +476,9 @@ class DataCollatorForSupervisedDataset(object):
 def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer,
                                 data_args) -> Dict:
     """Make dataset and collator for supervised fine-tuning."""
-    train_dataset = LazySupervisedDataset(tokenizer=tokenizer,
-                                          data_path=data_args.data_path,
-                                          data_args=data_args)
+    train_dataset = MergeSupervisedDataset(tokenizer=tokenizer,
+                                           data_path=data_args.data_path,
+                                           data_args=data_args)
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
     return dict(train_dataset=train_dataset,
                 eval_dataset=None,

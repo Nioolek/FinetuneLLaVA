@@ -123,3 +123,6 @@ work_dirs
 *.pt
 *.py~
 *.sh~
+
+*.csv
+checkpoints/

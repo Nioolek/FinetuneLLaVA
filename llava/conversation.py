@@ -107,7 +107,6 @@ class Conversation:
         return ret
 
     def append_message(self, role, message):
-        print('messages', self.messages)
         self.messages.append([role, message])
 
     def process_image(self, image, image_process_mode, return_pil=False, image_format='PNG', max_len=1344, min_len=672):
