@@ -13,10 +13,12 @@ import torch
 import transformers
 from PIL import Image
 from torch.utils.data import Dataset
+from transformers import LlamaConfig
 
 from llava.constants import DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN, IGNORE_INDEX
 from llava.mm_utils import tokenizer_image_token
 from llava.model.language_model.llava_llama import LlavaLlamaForCausalLM
+from llavanext.model.language_model.llava_llama import LlavaLlamaForCausalLM as LlavaLlamaForCausalLMNext
 from llava import conversation as conversation_lib
 from llava.train.llava_trainer import LLaVATrainer, maybe_zero_3
 
@@ -570,13 +572,33 @@ def train(attn_implementation=None):
     # 量化config
     bnb_model_from_pretrained_args = {}
 
-    model = LlavaLlamaForCausalLM.from_pretrained(
-        model_args.model_name_or_path,
-        cache_dir=training_args.cache_dir,
-        attn_implementation=attn_implementation,
-        torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
-        **bnb_model_from_pretrained_args
-    )
+
+    if 'llava-next' in model_args.model_name_or_path:
+        class LlavaConfig(LlamaConfig):
+            model_type = "llava_llama"
+            temperature: float = 0.0  # reset to 0.0, previously 0.9 for Vicuna
+            max_new_tokens: int = 1024
+            do_sample: bool = False
+            top_p: Optional[float] = None
+            rope_scaling: Optional[dict] = {}
+
+        lora_cfg_pretrained = LlavaConfig.from_pretrained(model_args.model_name_or_path,)
+        model = LlavaLlamaForCausalLMNext.from_pretrained(
+            model_args.model_name_or_path,
+            low_cpu_mem_usage=True,
+            config=lora_cfg_pretrained,
+            attn_implementation=attn_implementation,
+            # **kwargs
+        )
+    else:
+
+        model = LlavaLlamaForCausalLM.from_pretrained(
+            model_args.model_name_or_path,
+            cache_dir=training_args.cache_dir,
+            attn_implementation=attn_implementation,
+            torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
+            **bnb_model_from_pretrained_args
+        )
 
     model.config.use_cache = False
 
