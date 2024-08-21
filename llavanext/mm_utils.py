@@ -6,7 +6,7 @@ import ast
 
 import torch
 from transformers import StoppingCriteria
-from llava.constants import IMAGE_TOKEN_INDEX
+from llavanext.constants import IMAGE_TOKEN_INDEX
 
 
 def resize_and_center_crop(image, shortest_edge_length):
@@ -299,12 +299,14 @@ def expand2square(pil_img, background_color):
 
 def process_images(images, image_processor, model_cfg):
     image_aspect_ratio = getattr(model_cfg, "image_aspect_ratio", None)
+    # print('!!!', image_aspect_ratio)
     new_images = []
     if image_aspect_ratio == "highres":
         for image in images:
             image = process_highres_image(image, image_processor, model_cfg.image_grid_pinpoints)
             new_images.append(image)
     elif image_aspect_ratio == "anyres":
+        # 默认走这里
         for image in images:
             image = process_anyres_image(image, image_processor, model_cfg.image_grid_pinpoints)
             new_images.append(image)

@@ -361,8 +361,8 @@ conv_llava_llama_3 = Conversation(
     offset=0,
     sep="<|eot_id|>",
     sep_style=SeparatorStyle.LLAMA_3,
-    tokenizer_id="/home/glr/hf_model/Meta-Llama-3-8B-Instruct",
-    tokenizer=AutoTokenizer.from_pretrained("/home/glr/hf_model/Meta-Llama-3-8B-Instruct"),
+    tokenizer_id="/root/autodl-tmp/data/Meta-Llama-3-8B-Instruct",
+    tokenizer=AutoTokenizer.from_pretrained("/root/autodl-tmp/data/Meta-Llama-3-8B-Instruct"),
     stop_token_ids=[128009],
 )
 
