@@ -13,8 +13,26 @@ from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_S
 from llava.conversation import conv_templates, SeparatorStyle
 from logo_dict import sample_logo, sample_logo2, test_logo
 
-model_path = 'merge/baseline2_train2'
-result_csv_path = 'baseline2_train2.csv'
+
+# model_path = 'merge/baseline'
+# result_csv_path = 'result/baseline.csv'
+
+
+# model_path = 'merge/baseline1'
+# result_csv_path = 'result/baseline1.csv'
+
+# model_path = 'merge/baseline2'
+# result_csv_path = 'result/baseline2.csv'
+
+# model_path = 'merge/baseline2_train2'
+# result_csv_path = 'result/baseline2_train2.csv'
+
+# model_path = 'merge/baseline3'
+# result_csv_path = 'result/baseline3.csv'
+
+model_path = 'merge/baseline3_e3'
+result_csv_path = 'result/baseline3_e3.csv'
+
 
 dataset_dir = '/root/autodl-tmp/data/logo0812'
 img_dir = os.path.join(dataset_dir, 'images')

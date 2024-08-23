@@ -3,9 +3,17 @@ import numpy as np
 import pandas as pd
 
 import warnings
+
+from logo_dict import brand_link
+
 warnings.filterwarnings(action='ignore', category=pd.errors.SettingWithCopyWarning)
 
-csv_path = 'baseline2_train2.csv'
+csv_path = 'result/baseline3_e3.csv'
+# csv_path = 'result/baseline3.csv'
+# csv_path = 'result/baseline1.csv'
+# csv_path = 'result/baseline2.csv'
+# csv_path = 'result/baseline2_train2.csv'
+
 # pandas读取csv
 # logo, img, logo是否在训练集，brand是否在训练集，是否是amazon验证集, result
 df = pd.read_csv(csv_path)
@@ -27,13 +35,28 @@ def predict_process(x):
         x = sorted(replace_blank(x).split(','))
         return x
 
+
+def judge(label, predict):
+    if label in brand_link:
+        brand_list = brand_link[label]
+        # 将label与predict求交集
+        if set(brand_list) & set(predict):
+            return True
+        else:
+            return False
+    elif label in predict:
+        return True
+    else:
+        return False
+
+
 def get_logo_recall(logo_df, desc):
     # 是None或者list
     logo_df['predict'] = logo_df['result'].apply(lambda x: predict_process(x))
     # 是str
     logo_df['label'] = logo_df['logo'].apply(lambda x: replace_blank(x).split('/')[0].lower().replace(' ', '').replace('_', ''))
 
-    logo_df['recall'] = logo_df.apply(lambda row: row['label'] in row['predict'] if row['predict'] else False, axis=1)
+    logo_df['recall'] = logo_df.apply(lambda row: judge(row['label'], row['predict']), axis=1)
 
     class_counts = logo_df['logo'].value_counts()  # 每个类别的样本数
     recall_counts = logo_df[logo_df['recall']].groupby('logo').size()
@@ -53,7 +76,7 @@ def get_brand_recall(logo_df, desc):
     logo_df['label'] = logo_df['logo'].apply(
         lambda x: replace_blank(x).split('/')[0].lower().replace(' ', '').replace('_', ''))
 
-    logo_df['recall'] = logo_df.apply(lambda row: row['label'] in row['predict'] if row['predict'] else False, axis=1)
+    logo_df['recall'] = logo_df.apply(lambda row: judge(row['label'], row['predict']), axis=1)
 
     class_counts = logo_df['brand'].value_counts()  # 每个类别的样本数
     recall_counts = logo_df[logo_df['recall']].groupby('brand').size()
