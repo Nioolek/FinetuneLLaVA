@@ -94,6 +94,7 @@ class TrainingArguments(transformers.TrainingArguments):
     lora_dropout: float = 0.05
     lora_weight_path: str = ""
     lora_bias: str = "none"
+    lora_layer: str = "k_proj, gate_proj, q_proj, up_proj, o_proj, v_proj, down_proj"
     mm_projector_lr: Optional[float] = None
     group_by_modality_length: bool = field(default=False)
     per_device_train_batch_size: int = 1
@@ -114,6 +115,8 @@ def find_all_linear_names(model):
     # print(lora_module_names)
     if 'lm_head' in lora_module_names:  # needed for 16-bit
         lora_module_names.remove('lm_head')
+    print('#'*1000)
+    print('lora_module_names', lora_module_names)
     return list(lora_module_names)
 
 
@@ -611,13 +614,16 @@ def train(attn_implementation=None):
 
     if training_args.lora_enable:
         from peft import LoraConfig, get_peft_model
+        lora_layer = training_args.lora_layer.replace(' ', '').split(',')
+        rank0_print('Set lora layer', lora_layer)
         lora_config = LoraConfig(
             # 秩数
             r=training_args.lora_r,
             # self.scaling = self.lora_alpha / self.r
             # 对lora结果做个缩放
             lora_alpha=training_args.lora_alpha,
-            target_modules=find_all_linear_names(model),
+            # target_modules=find_all_linear_names(model),
+            target_modules=lora_layer,
             lora_dropout=training_args.lora_dropout,
             bias=training_args.lora_bias,
             task_type="CAUSAL_LM",

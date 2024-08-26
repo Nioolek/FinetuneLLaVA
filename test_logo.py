@@ -1,3 +1,4 @@
+import argparse
 import sys
 sys.path.append('.')
 sys.path.append('llava')
@@ -30,8 +31,11 @@ from logo_dict import sample_logo, sample_logo2, test_logo
 # model_path = 'merge/baseline3'
 # result_csv_path = 'result/baseline3.csv'
 
-model_path = 'merge/baseline3_e3'
-result_csv_path = 'result/baseline3_e3.csv'
+# model_path = 'merge/baseline3_e3'
+# result_csv_path = 'result/baseline3_e3.csv'
+
+# 将model_path和result_csv_path通过parser传入
+
 
 
 dataset_dir = '/root/autodl-tmp/data/logo0812'
@@ -180,11 +184,17 @@ def get_result(model, logo, imgbase, image_processor, question, tokenizer, msg):
 
 if __name__ == '__main__':
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model-path", type=str, required=True)
+    parser.add_argument("--result-path", type=str, required=True)
+
+    args = parser.parse_args()
+
     conv_template = "v1" # Make sure you use correct chat template for different models
     question = DEFAULT_IMAGE_TOKEN + "\nYou are an intellectual property expert. Please check the image for potential copyright infringing elements, such as well-known brand logos or cartoon characters. If any are present, please provide the names of the brands or characters. If not, then reply that there are none."
 
-    writer = WriteCsv(result_csv_path)
-    model, image_processor, context_len, tokenizer = init_model(model_path)
+    writer = WriteCsv(args.result_path)
+    model, image_processor, context_len, tokenizer = init_model(args.model_path)
     data = load_test_image_list()
 
     # 推理
