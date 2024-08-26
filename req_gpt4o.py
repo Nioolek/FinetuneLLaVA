@@ -67,10 +67,7 @@ def parse_voc_annotation(xml_filepath):
     }
 
 
-# openai.api_key = 'sk-RQDbSR2ISgnTEXzQPvtkjSNy5IJtElPcihmFYdizQiS7HCnD'
-# openai.api_base = 'https://api.chatanywhere.tech/v1/'
-
-openai.api_key = 'sk-srOPpHp5jE7f45u7Ed1a982e6f4142Ea823b3c352068750b'
+openai.api_key = '???'
 openai.api_base = 'https://gf.gpt.ge/v1'
 
 
