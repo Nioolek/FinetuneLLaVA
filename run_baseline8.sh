@@ -5,7 +5,7 @@
 MODELBASE=liuhaotian/llava-v1.5-7b
 SAVENAME=baseline8
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 NCCL_IB_DISABLE=1 NCCL_P2P_DISABLE=1 deepspeed finetune.py \
+CUDA_VISIBLE_DEVICES=0 NCCL_IB_DISABLE=1 NCCL_P2P_DISABLE=1 deepspeed finetune.py \
     --lora_enable True --lora_r 128 --lora_alpha 256 --mm_projector_lr 2e-5 \
     --deepspeed zero2.json \
     --model_name_or_path $MODELBASE  \
@@ -42,6 +42,6 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 NCCL_IB_DISABLE=1 NCCL_P2P_DISABLE=1 deepspeed fine
     --report_to wandb
 
 
-CUDA_VISIBLE_DEVICES=4 python merge_lora.py --model-base $MODELBASE --model-path checkpoints/$SAVENAME --save-model-path merge/$SAVENAME
+CUDA_VISIBLE_DEVICES=0 python merge_lora.py --model-base $MODELBASE --model-path checkpoints/$SAVENAME --save-model-path merge/$SAVENAME
 
-CUDA_VISIBLE_DEVICES=4 python test_logo.py --model-path merge/$SAVENAME --result-path result/$SAVENAME.csv
+CUDA_VISIBLE_DEVICES=0 python test_logo.py --model-path merge/$SAVENAME --result-path result/$SAVENAME.csv

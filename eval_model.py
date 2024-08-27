@@ -25,8 +25,11 @@ warnings.filterwarnings(action='ignore', category=pd.errors.SettingWithCopyWarni
 # csv_path = 'result/baseline6_lorar2.csv'
 # csv_path = 'result/baseline6_lorar.csv'
 # csv_path = 'result/baseline6_lorar_nodesc.csv'
-csv_path = 'result/baseline7.csv'
-csv_path = 'result/baseline6_e3.csv'
+# csv_path = 'result/baseline7.csv'
+# csv_path = 'result/baseline6_e3.csv'
+
+csv_path = 'result/baseline6_lorar_nodesc.csv'
+save_csv_path = 'result/c_baseline6_lorar_nodesc.csv'
 
 
 # pandas读取csv
@@ -140,6 +143,7 @@ def get_amazon_label(logo_df):
     logo_df['predict'] = logo_df['result'].apply(lambda x: predict_process(x))
     logo_df['label'] = logo_df['img_path'].apply(lambda x: none_brand_label[x])
     logo_df['recall'] = logo_df.apply(lambda row: temp(row), axis=1)
+    logo_df.to_csv(save_csv_path, index=False)
     print(logo_df.head())
     class_counts = logo_df['logo'].value_counts()  # 每个类别的样本数
     recall_counts = logo_df[logo_df['recall']].groupby('logo').size()
